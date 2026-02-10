@@ -30,7 +30,7 @@ function classifyQuery(text) {
   }
   
   // Opportunity queries
-  const oppKeywords = ['job', 'vacancy', 'opening', 'recruitment', 'opportunity', 'position', 'hiring', 'career'];
+  const oppKeywords = ['job', 'jobs', 'vacancy', 'opening', 'recruitment', 'opportunity', 'opportunities', 'position', 'hiring', 'career', 'employment', 'work', 'posting', 'postings'];
   if (oppKeywords.some(k => normalized.includes(k))) {
     return 'OPPORTUNITY_QUERY';
   }
