@@ -2,17 +2,22 @@ const { Resend } = require('resend');
 
 const resend = new Resend('re_Acm6UCqv_GnmC2rdKMzqi5vGw73aUWGzK');
 
-// Send email response
-async function sendEmail(to, subject, body) {
+// Send email response with reply-friendly sender
+async function sendEmail(to, subject, body, type = 'ask') {
+  // Use the appropriate sender based on email type
+  // This allows users to reply directly
+  const fromAddress = type === 'submit' 
+    ? 'FAUJNET <submit@faujnetmail.com>'
+    : 'FAUJNET <ask@faujnetmail.com>';
+
   try {
     const { data, error } = await resend.emails.send({
-      from: 'FAUJNET <noreply@faujnetmail.com>',
+      from: fromAddress,
       to: to,
       subject: subject,
       text: body,
       headers: {
-        'X-Auto-Response-Suppress': 'All',
-        'Auto-Submitted': 'auto-replied'
+        'X-Auto-Response-Suppress': 'OOF', // Only suppress Out-of-Office, allow normal replies
       }
     });
 
