@@ -1,6 +1,6 @@
 const { Resend } = require('resend');
 
-const resend = new Resend('re_Acm6UCqv_GnmC2rdKMzqi5vGw73aUWGzK');
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Send email response with reply-friendly sender
 async function sendEmail(to, subject, body, type = 'ask') {
