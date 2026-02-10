@@ -52,7 +52,7 @@ app.post('/webhook/resend/inbound', async (req, res) => {
       }
       
       if (template) {
-        const emailResult = await sendEmail(fromAddress, template.subject, template.body);
+        const emailResult = await sendEmail(fromAddress, template.subject, template.body, 'ask');
         console.log('ASK response sent:', emailResult);
       }
     } else {
@@ -78,7 +78,7 @@ app.post('/webhook/resend/inbound', async (req, res) => {
       }
       
       if (template) {
-        const emailResult = await sendEmail(fromAddress, template.subject, template.body);
+        const emailResult = await sendEmail(fromAddress, template.subject, template.body, 'submit');
         console.log('SUBMIT response sent:', emailResult);
       }
     } else {
@@ -121,7 +121,7 @@ app.post('/webhook/ask', async (req, res) => {
   if (response && result.action !== 'SILENCE') {
     const config = db.prepare("SELECT enabled FROM system_config WHERE key = 'OUTBOUND_EMAIL_ENABLED'").get();
     if (config?.enabled) {
-      const emailResult = await sendEmail(from, response.subject, response.body);
+      const emailResult = await sendEmail(from, response.subject, response.body, "ask");
       emailSent = emailResult.success;
     }
   }
@@ -161,7 +161,7 @@ app.post('/webhook/submit', async (req, res) => {
   if (response && result.action !== 'SILENCE') {
     const config = db.prepare("SELECT enabled FROM system_config WHERE key = 'OUTBOUND_EMAIL_ENABLED'").get();
     if (config?.enabled) {
-      const emailResult = await sendEmail(from, response.subject, response.body);
+      const emailResult = await sendEmail(from, response.subject, response.body, "submit");
       emailSent = emailResult.success;
     }
   }
@@ -406,7 +406,7 @@ app.post('/api/simulate/ask', async (req, res) => {
   // Optionally send real email
   let emailSent = false;
   if (sendReal && response && result.action !== 'SILENCE') {
-    const emailResult = await sendEmail(email, response.subject, response.body);
+    const emailResult = await sendEmail(email, response.subject, response.body, "ask");
     emailSent = emailResult.success;
   }
   
@@ -442,7 +442,7 @@ app.post('/api/simulate/submit', async (req, res) => {
   // Optionally send real email
   let emailSent = false;
   if (sendReal && response && result.action !== 'SILENCE') {
-    const emailResult = await sendEmail(email, response.subject, response.body);
+    const emailResult = await sendEmail(email, response.subject, response.body, "submit");
     emailSent = emailResult.success;
   }
   
