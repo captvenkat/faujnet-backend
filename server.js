@@ -332,6 +332,17 @@ app.get('/api/admin/audit', (req, res) => {
   res.json({ logs });
 });
 
+// Debug: Get recent email events with details
+app.get('/api/admin/debug/emails', (req, res) => {
+  const events = db.prepare(`
+    SELECT * FROM email_event_log 
+    ORDER BY created_at DESC 
+    LIMIT 50
+  `).all();
+  
+  res.json({ events });
+});
+
 // Get sender trust stats (aggregated, no PII)
 app.get('/api/admin/trust-stats', (req, res) => {
   const stats = db.prepare(`
