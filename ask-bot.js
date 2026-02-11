@@ -24,13 +24,13 @@ function classifyQuery(text) {
   const normalized = text.toLowerCase();
   
   // Rule/entitlement queries
-  const ruleKeywords = ['entitled', 'eligible', 'eligibility', 'pension', 'gratuity', 'echs', 'canteen', 'csd', 'rule', 'regulation'];
+  const ruleKeywords = ['entitled', 'eligible', 'eligibility', 'pension', 'gratuity', 'echs', 'canteen', 'csd', 'rule', 'regulation', 'benefit', 'benefits', 'scheme', 'schemes', 'welfare', 'medical', 'health', 'hospital', 'orop', 'allowance'];
   if (ruleKeywords.some(k => normalized.includes(k))) {
     return 'RULE_QUERY';
   }
   
-  // Opportunity queries
-  const oppKeywords = ['job', 'jobs', 'vacancy', 'opening', 'recruitment', 'opportunity', 'opportunities', 'position', 'hiring', 'career', 'employment', 'work', 'posting', 'postings'];
+  // Opportunity queries - be very generous with keywords
+  const oppKeywords = ['job', 'jobs', 'vacancy', 'opening', 'recruitment', 'opportunity', 'opportunities', 'position', 'hiring', 'career', 'employment', 'work', 'posting', 'postings', 'company', 'companies', 'private', 'govt', 'government', 'psu', 'bank', 'security', 'manager', 'officer', 'apply', 'application', 'salary', 'pay', 'income', 'earn', 'resettlement', 'placement', 'interview', 'resume', 'veteran', 'veterans', 'esm', 'ex-serviceman', 'ex-servicemen', 'retired', 'retirement', 'after army', 'after service', 'second career', 'need work', 'looking for', 'want to join', 'any opening', 'help me find', 'available'];
   if (oppKeywords.some(k => normalized.includes(k))) {
     return 'OPPORTUNITY_QUERY';
   }
@@ -41,7 +41,14 @@ function classifyQuery(text) {
     return 'STATUS_QUERY';
   }
   
-  return 'INVALID';
+  // If nothing matches but mentions army/military context, treat as opportunity query
+  const militaryContext = ['army', 'navy', 'air force', 'military', 'defence', 'defense', 'forces', 'soldier', 'jawan', 'fauji', 'sainik'];
+  if (militaryContext.some(k => normalized.includes(k))) {
+    return 'OPPORTUNITY_QUERY';
+  }
+  
+  // Default: treat as opportunity query instead of invalid (be helpful)
+  return 'OPPORTUNITY_QUERY';
 }
 
 // Extract query parameters
@@ -161,11 +168,7 @@ function processAsk(fromEmail, subject, body) {
   const content = normalizeContent(`${subject} ${body}`);
   const queryType = classifyQuery(content);
   
-  if (queryType === 'INVALID') {
-    trust.updateTrust(sender.sender_hash, 'ASK', 'SILENCE');
-    trust.logEvent('ASK', 'SILENCE', 'INVALID');
-    return { action: 'SILENCE', reason: 'INVALID_QUERY' };
-  }
+  // No longer reject as invalid - classifyQuery now defaults to OPPORTUNITY_QUERY
   
   // Extract and validate params
   const params = extractQueryParams(content, queryType);
